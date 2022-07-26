@@ -9,17 +9,17 @@
 #define XMSS_MLEN 32
 
 #ifndef XMSS_SIGNATURES
-    #define XMSS_SIGNATURES 16
+#define XMSS_SIGNATURES 16
 #endif
 
 #ifdef XMSSMT
-    #define XMSS_PARSE_OID xmssmt_parse_oid
-    #define XMSS_STR_TO_OID xmssmt_str_to_oid
-    #define XMSS_KEYPAIR xmssmt_keypair
-    #define XMSS_SIGN xmssmt_sign
-    #define XMSS_SIGN_OPEN xmssmt_sign_open
+#define XMSS_PARSE_OID xmssmt_parse_oid
+#define XMSS_STR_TO_OID xmssmt_str_to_oid
+#define XMSS_KEYPAIR xmssmt_keypair
+#define XMSS_SIGN xmssmt_sign
+#define XMSS_SIGN_OPEN xmssmt_sign_open
 #else
-    #define XMSS_PARSE_OID xmss_parse_oid
+#define XMSS_PARSE_OID xmss_parse_oid
     #define XMSS_STR_TO_OID xmss_str_to_oid
     #define XMSS_KEYPAIR xmss_keypair
     #define XMSS_SIGN xmss_sign
@@ -27,7 +27,7 @@
 #endif
 
 #ifndef XMSS_VARIANT
-    #ifdef XMSSMT
+#ifdef XMSSMT
         #define XMSS_VARIANT "XMSSMT-SHA2_20/2_256"
     #else
         #define XMSS_VARIANT "XMSS-SHA2_10_256"
@@ -36,10 +36,10 @@
 
 static unsigned long long cpucycles(void)
 {
-  unsigned long long result;
-  __asm volatile(".byte 15;.byte 49;shlq $32,%%rdx;orq %%rdx,%%rax"
+    unsigned long long result;
+    __asm volatile(".byte 15;.byte 49;shlq $32,%%rdx;orq %%rdx,%%rax"
     : "=a" (result) ::  "%rdx");
-  return result;
+    return result;
 }
 
 static int cmp_llu(const void *a, const void*b)
@@ -69,13 +69,13 @@ static unsigned long long average(unsigned long long *t, size_t tlen)
 
 static void print_results(unsigned long long *t, size_t tlen)
 {
-  size_t i;
-  for (i = 0; i < tlen-1; i++) {
-    t[i] = t[i+1] - t[i];
-  }
-  printf("\tmedian        : %llu cycles\n", median(t, tlen));
-  printf("\taverage       : %llu cycles\n", average(t, tlen-1));
-  printf("\n");
+    size_t i;
+    for (i = 0; i < tlen-1; i++) {
+        t[i] = t[i+1] - t[i];
+    }
+    printf("\tmedian        : %llu cycles\n", median(t, tlen));
+    printf("\taverage       : %llu cycles\n", average(t, tlen-1));
+    printf("\n");
 }
 
 int main()
