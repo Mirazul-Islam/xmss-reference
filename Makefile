@@ -13,8 +13,10 @@ TESTS = test/wots \
 		test/oid \
 		test/speed \
 		test/performance_create_and_verify \
+		test/performance_create_and_verify_smartnic \
 		test/speed \
 		test/performance_generate \
+		test/performance_generate_smartnic \
 		test/xmss \
 		test/xmss_fast \
 		test/xmssmt \
@@ -66,6 +68,12 @@ test/performance_generate: test/performance.c $(SOURCES_FAST) $(OBJS) $(HEADERS_
 	$(CC) -DXMSS -DXMSS_VARIANT=\"XMSS-SHA2_10_256\" -DPERFORMANCE_TYPE=\"generate\" $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
 
 test/performance_create_and_verify: test/performance.c $(SOURCES_FAST) $(OBJS) $(HEADERS_FAST)
+	$(CC) -DXMSS -DXMSS_VARIANT=\"XMSS-SHA2_10_256\" -DPERFORMANCE_TYPE=\"create_and_verify\" $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
+
+test/performance_generate_smartnic: test/performance.c $(SOURCES_FAST) $(OBJS) $(HEADERS_FAST)
+	$(CC) -DXMSS -DXMSS_VARIANT=\"XMSS-SHA2_10_256\" -DPERFORMANCE_TYPE=\"generate\" $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
+
+test/performance_create_and_verify_smartnic: test/performance.c $(SOURCES_FAST) $(OBJS) $(HEADERS_FAST)
 	$(CC) -DXMSS -DXMSS_VARIANT=\"XMSS-SHA2_10_256\" -DPERFORMANCE_TYPE=\"create_and_verify\" $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
 
 test/vectors: test/vectors.c $(SOURCES) $(OBJS) $(HEADERS)

@@ -9,7 +9,7 @@
 #include "../randombytes.h"
 
 #ifndef PERFORMANCE_TYPE
-    #define PERFORMANCE_TYPE "generate"
+#define PERFORMANCE_TYPE "generate"
 #endif
 
 
@@ -34,50 +34,6 @@
 #define XMSS_VARIANT "XMSS-SHA2_10_256"
 #endif
 #endif
-
-static unsigned long long cpucycles(void)
-{
-    unsigned long long result;
-    __asm volatile(".byte 15;.byte 49;shlq $32,%%rdx;orq %%rdx,%%rax"
-    : "=a" (result) ::  "%rdx");
-    return result;
-}
-
-static int cmp_llu(const void *a, const void*b)
-{
-    if (*(unsigned long long *)a < *(unsigned long long *)b) return -1;
-    if (*(unsigned long long *)a > *(unsigned long long *)b) return 1;
-    return 0;
-}
-
-static unsigned long long median(unsigned long long *l, size_t llen)
-{
-    qsort(l, llen, sizeof(unsigned long long), cmp_llu);
-
-    if (llen % 2) return l[llen / 2];
-    else return (l[llen/2 - 1] + l[llen/2]) / 2;
-}
-
-static unsigned long long average(unsigned long long *t, size_t tlen)
-{
-    unsigned long long acc=0;
-    size_t i;
-    for(i = 0; i < tlen; i++) {
-        acc += t[i];
-    }
-    return acc/(tlen);
-}
-
-static void print_results(unsigned long long *t, size_t tlen)
-{
-    size_t i;
-    for (i = 0; i < tlen-1; i++) {
-        t[i] = t[i+1] - t[i];
-    }
-    printf("\tmedian        : %llu cycles\n", median(t, tlen));
-    printf("\taverage       : %llu cycles\n", average(t, tlen-1));
-    printf("\n");
-}
 
 static double average_time(double timeArray[])
 {
@@ -137,20 +93,17 @@ static double speed_test(int xmss_mlen, int xmss_signatures, char *performance_t
     printf("Generating keypair.. ");
 
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
-    t0 = cpucycles();
     XMSS_KEYPAIR(pk, sk, oid);
-    t1 = cpucycles();
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &stop);
     result = (stop.tv_sec - start.tv_sec) * 1e6 + (stop.tv_nsec - start.tv_nsec) / 1e3;
     generating_key_pair_time = result;
 
-    printf("took %lf us (%.2lf sec), %llu cycles\n", generating_key_pair_time, generating_key_pair_time / 1e6, t1 - t0);
+    printf("took %lf us (%.2lf sec) \n", generating_key_pair_time, generating_key_pair_time / 1e6);
 
     printf("Creating %d signatures..\n", xmss_signatures);
 
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &total_start);
     for (i = 0; i < xmss_signatures; i++) {
-        t[i] = cpucycles();
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
         XMSS_SIGN(sk, sm, &smlen, m, xmss_mlen);
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &stop);
@@ -172,7 +125,6 @@ static double speed_test(int xmss_mlen, int xmss_signatures, char *performance_t
 
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &total_start);
     for (i = 0; i < xmss_signatures; i++) {
-        t[i] = cpucycles();
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
         ret |= XMSS_SIGN_OPEN(mout, &mlen, sm, smlen, pk);
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &stop);
@@ -219,7 +171,7 @@ int main()
 {
     FILE * fp;
 
-    fp = fopen ("result.csv", "w+");
+    fp = fopen ("result_smartnic.csv", "w+");
     fprintf(fp,"Message size (bytes), Time\n");
 
     int i;
