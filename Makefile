@@ -1,6 +1,6 @@
 CC = /usr/bin/gcc
 CFLAGS = -Wall -g -O3 -Wextra -Wpedantic
-LDLIBS = -lcrypto
+LDLIBS = -lcrypto -lm
 
 
 SOURCES = params.c hash.c fips202.c hash_address.c randombytes.c wots.c xmss.c xmss_core.c xmss_commons.c utils.c
