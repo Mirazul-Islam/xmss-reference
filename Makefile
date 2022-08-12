@@ -12,7 +12,9 @@ HEADERS_FAST = $(subst xmss_core.c,xmss_core_fast.c,$(HEADERS))
 TESTS = test/wots \
 		test/oid \
 		test/speed \
-		test/xmss_determinism \
+		test/performance_create_and_verify \
+		test/speed \
+		test/performance_generate \
 		test/xmss \
 		test/xmss_fast \
 		test/xmssmt \
