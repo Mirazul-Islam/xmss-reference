@@ -2,16 +2,16 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <math.h>
 
 #include "../xmss.h"
 #include "../params.h"
 #include "../randombytes.h"
 
-//#define XMSS_MLEN 200000000
+#ifndef PERFORMANCE_TYPE
+    #define PERFORMANCE_TYPE "generate"
+#endif
 
-//#ifndef XMSS_SIGNATURES
-//    #define XMSS_SIGNATURES 16
-//#endif
 
 #ifdef XMSSMT
 #define XMSS_PARSE_OID xmssmt_parse_oid
@@ -142,7 +142,9 @@ static double speed_test(int xmss_mlen, int xmss_signatures, char *performance_t
     t1 = cpucycles();
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &stop);
     result = (stop.tv_sec - start.tv_sec) * 1e6 + (stop.tv_nsec - start.tv_nsec) / 1e3;
-    printf("took %lf us (%.2lf sec), %llu cycles\n", result, result / 1e6, t1 - t0);
+    generating_key_pair_time = result;
+
+    printf("took %lf us (%.2lf sec), %llu cycles\n", generating_key_pair_time, generating_key_pair_time / 1e6, t1 - t0);
 
     printf("Creating %d signatures..\n", xmss_signatures);
 
@@ -153,9 +155,6 @@ static double speed_test(int xmss_mlen, int xmss_signatures, char *performance_t
         XMSS_SIGN(sk, sm, &smlen, m, xmss_mlen);
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &stop);
         result = (stop.tv_sec - start.tv_sec) * 1e6 + (stop.tv_nsec - start.tv_nsec) / 1e3;
-//        printf("start: %.2lf\n", ((start.tv_sec) * 1e6 + (start.tv_nsec)/1e3)/ 1e6);
-//        printf("stop: %.2lf\n", ((stop.tv_sec) * 1e6 + (stop.tv_nsec)/1e3)/ 1e6);
-//        printf("result: %.2lf\n\n", result/1e6);
         time[i]= result;
     }
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &total_stop);
@@ -202,9 +201,15 @@ static double speed_test(int xmss_mlen, int xmss_signatures, char *performance_t
     free(mout);
     free(t);
 
-    if(strcmp(performance_type, "Create") == 0){
-        return creating_signature_time;
-    }else{
+    if(strcmp(performance_type, "create") == 0) {
+        return creating_signature_time/ 1e3;
+    } else if (strcmp(performance_type, "generate") == 0) {
+        return generating_key_pair_time;
+    } else if (strcmp(performance_type, "verify") == 0){
+        return verifying_signature_time/ 1e3;
+    }else if (strcmp(performance_type, "create_and_verify") == 0){
+        return verifying_signature_time+creating_signature_time/ 1e3;
+    } else{
         return 0;
     }
 }
@@ -214,19 +219,20 @@ int main()
 {
     FILE * fp;
 
-    fp = fopen ("test.csv", "w+");
+    fp = fopen ("result.csv", "w+");
     fprintf(fp,"Message size (bytes), Time\n");
 
     int i;
     int j = 0;
 
-    for (i = 2222222; i < 2222222222; i=i+2000000) {
+    for (i = 0; i < 12; ++i) {
         printf("iteration %d\n", j);
-        double time = speed_test(i, 16, "Create");
-        fprintf(fp,"%d, %f\n", i, time);
+        double time = speed_test(pow(2,i), 16, PERFORMANCE_TYPE);
+        printf("%f", pow(2,i));
+        fprintf(fp,"%d bytes, %f\n", (int)pow(2,i), time);
         ++j;
         printf("\n\n\n");
-        if(j==300){
+        if(j==50){
             break;
         }
     }

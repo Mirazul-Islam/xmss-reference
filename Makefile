@@ -58,10 +58,13 @@ test/xmssmt: test/xmss.c $(SOURCES) $(OBJS) $(HEADERS)
 	$(CC) -DXMSSMT $(CFLAGS) -o $@ $(SOURCES) $< $(LDLIBS)
 
 test/speed: test/speed.c $(SOURCES_FAST) $(OBJS) $(HEADERS_FAST)
-	$(CC) -DXMSSMT -DXMSS_VARIANT=\"XMSSMT-SHA2_20/2_256\" $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
+	$(CC) -DXMSS -DXMSS_VARIANT=\"XMSSMT-SHA2_20/2_256\" $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
 
 test/performance: test/performance.c $(SOURCES_FAST) $(OBJS) $(HEADERS_FAST)
-	$(CC) -DXMSSMT -DXMSS_VARIANT=\"XMSSMT-SHA2_20/2_256\" $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
+	$(CC) -DXMSS -DXMSS_VARIANT=\"XMSS-SHA2_10_256\" -DPERFORMANCE_TYPE=\"generate\" $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
+
+test/performance: test/performance.c $(SOURCES_FAST) $(OBJS) $(HEADERS_FAST)
+	$(CC) -DXMSS -DXMSS_VARIANT=\"XMSS-SHA2_10_256\" -DPERFORMANCE_TYPE=\"create_and_verify\" $(CFLAGS) -o $@ $(SOURCES_FAST) $< $(LDLIBS)
 
 test/vectors: test/vectors.c $(SOURCES) $(OBJS) $(HEADERS)
 	$(CC) -DXMSSMT $(CFLAGS) -o $@ $(SOURCES) $< $(LDLIBS)
